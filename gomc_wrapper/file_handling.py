@@ -8,7 +8,7 @@ from io import StringIO
 def read(filename='in.conf'):
     """Read GOMC parameter file
     """
-    from __init__ import GOMC
+    from .__init__ import GOMC
     gomc = GOMC()
     with open(filename, 'r') as f:
         for line in f:
@@ -340,6 +340,7 @@ def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
                     symbols={'O': 'O', 'H': 'H', 'M': 'M'}):
     """Write parameter file
     """
+    large = 9999999999
     with open(filename, 'w') as f:
         # write header information
         f.write("* Parameters for TIP4P\n")
@@ -352,8 +353,8 @@ def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
         f.write("V(bond) = Kb(b - b0)**2\n")
         f.write("!\n")
         f.write("!" + temp_bond.format(1, 2, "Kb", "b0"))
-        f.write(temp_bond.format(symbols['O'], symbols['H'], 9999999999, r0))
-        f.write(temp_bond.format(symbols['O'], symbols['M'], 9999999999, OM))
+        f.write(temp_bond.format(symbols['O'], symbols['H'], large, r0))
+        f.write(temp_bond.format(symbols['O'], symbols['M'], large, OM))
         f.write("\n\n")
 
         # write angle information
@@ -363,8 +364,8 @@ def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
         f.write("V(angle) = Ktheta(Theta - Theta0)**2\n")
         f.write("!\n")
         f.write("!" + temp_angle.format(1, 2, 3, "Ktheta", "Theta0"))
-        f.write(temp_angle.format(symbols['H'], symbols['O'], symbols['H'], 9999999999, theta))
-        f.write(temp_angle.format(symbols['H'], symbols['O'], symbols['M'], 9999999999, theta/2))
+        f.write(temp_angle.format(symbols['H'], symbols['O'], symbols['H'], large, theta))
+        f.write(temp_angle.format(symbols['H'], symbols['O'], symbols['M'], large, theta/2))
         f.write("\n\n")
 
         # write dihedral information
@@ -384,49 +385,3 @@ def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
         f.write(temp_nb.format(symbols['H'], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
         f.write(temp_nb.format(symbols['M'], 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
         f.write(temp_nb.format(symbols['O'], 0.0, epsilon, sigma, 0.0, 0.0, 0.0))
-
-
-if __name__ == "__main__":
-    # parameters
-    Z_H = 0.6
-    Z_O = - 2 * Z_H
-    r0 = 0.9572
-    OM = 0.1546
-    theta = 104.52
-    epsilon = 18.56
-    sigma = 3.16
-
-    # file names
-    configfile = "in.conf"
-    topofile = "topology.inp"
-    paramfile = "param.inp"
-    pdb1 = "liquid_gomc_tip4p.pdb"
-    pdb2 = "vapor_gomc_tip4p.pdb"
-    psf1 = "liquid_gomc_tip4p.psf"
-    psf2 = "vapor_gomc_tip4p.psf"
-
-    # define atoms
-    atoms = ['O', 'H', 'H', 'M']
-    labels = ['O', 'H1', 'H2', 'M']
-    mass = {'O': 15.9994, 'H': 1.0079, 'M': 0.0}
-    charge = {'O': 0.0, 'H': Z_H, 'M': Z_O}
-    bonds = ['OH', 'OM']
-    molname = 'TIP4P'
-    symbols = {'O': 'O', 'H': 'H', 'M': 'M'}
-
-    # generate files
-    write_topology(topofile, atoms, labels, mass, charge, bonds, molname)
-    psfgen(coordinates=pdb1, topology=topofile, genfile=psf1)
-    psfgen(coordinates=pdb2, topology=topofile, genfile=psf2)
-    write_parameter(paramfile, r0, theta, OM, epsilon, sigma, symbols)
-
-    # define GOMC object
-    gomc = read(configfile)
-    gomc.set("Parameters", paramfile)
-    gomc.set("Rcut", 8.5)
-    gomc.set("RcutCoulomb", 8.5)
-    gomc.set("Coordinates", 0, pdb1)
-    gomc.set("Coordinates", 1, pdb2)
-    gomc.set("Structure", 0, psf1)
-    gomc.set("Structure", 1, psf2)
-    gomc.write(configfile)

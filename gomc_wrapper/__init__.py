@@ -1,8 +1,8 @@
 import os
 import shutil
 import subprocess
-from parameter import parameters
-from file_handling import read
+from .parameter import parameters
+from .file_handling import read, write_topology, write_parameter, psfgen
 
 
 class GOMC:
@@ -15,8 +15,8 @@ class GOMC:
         self.wd = ""
 
     # import
-    from config import add_box, set_steps, set_prob
-    from file_handling import write
+    from .config import add_box, set_steps, set_prob
+    from .file_handling import write
 
     def set(self, keyword, *values):
         self.parameters[keyword].set(*values)
