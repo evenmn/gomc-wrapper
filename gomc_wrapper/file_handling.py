@@ -387,6 +387,7 @@ def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
 
 
 if __name__ == "__main__":
+    # parameters
     Z_H = 0.6
     Z_O = - 2 * Z_H
     r0 = 0.9572
@@ -394,25 +395,38 @@ if __name__ == "__main__":
     theta = 104.52
     epsilon = 18.56
     sigma = 3.16
-    filename = "topology.inp"
+
+    # file names
+    configfile = "in.conf"
+    topofile = "topology.inp"
+    paramfile = "param.inp"
+    pdb1 = "liquid_gomc_tip4p.pdb"
+    pdb2 = "vapor_gomc_tip4p.pdb"
+    psf1 = "liquid_gomc_tip4p.psf"
+    psf2 = "vapor_gomc_tip4p.psf"
+
+    # define atoms
     atoms = ['O', 'H', 'H', 'M']
     labels = ['O', 'H1', 'H2', 'M']
     mass = {'O': 15.9994, 'H': 1.0079, 'M': 0.0}
     charge = {'O': 0.0, 'H': Z_H, 'M': Z_O}
     bonds = ['OH', 'OM']
     molname = 'TIP4P'
+    symbols = {'O': 'O', 'H': 'H', 'M': 'M'}
 
-    write_topology(filename, atoms, labels, mass, charge, bonds, molname)
-    psfgen(coordinates="liquid_gomc_tip4p.pdb", topology=filename)
-    psfgen(coordinates="vapor_gomc_tip4p.pdb", topology=filename)
-    write_parameter()
+    # generate files
+    write_topology(topofile, atoms, labels, mass, charge, bonds, molname)
+    psfgen(coordinates=pdb1, topology=topofile, genfile=psf1)
+    psfgen(coordinates=pdb2, topology=topofile, genfile=psf2)
+    write_parameter(paramfile, r0, theta, OM, epsilon, sigma, symbols)
 
-    default_input = "in.conf"
-    gomc = read(default_input)
-    gomc.set("Parameters", "Par_TIP4P-2020_charmm.inp")
+    # define GOMC object
+    gomc = read(configfile)
+    gomc.set("Parameters", paramfile)
     gomc.set("Rcut", 8.5)
     gomc.set("RcutCoulomb", 8.5)
-    gomc.set("Coordinates", 0, "liquid_gomc_tip4p.pdb")
-    gomc.set("Coordinates", 1, "vapor_gomc_tip4p.pdb")
-    gomc.set("Structure", 0, "liquid_gomc_tip4p.psf")
-    gomc.set("Structure", 1, "vapor_gomc_tip4p.psf")
+    gomc.set("Coordinates", 0, pdb1)
+    gomc.set("Coordinates", 1, pdb2)
+    gomc.set("Structure", 0, psf1)
+    gomc.set("Structure", 1, psf2)
+    gomc.write(configfile)
