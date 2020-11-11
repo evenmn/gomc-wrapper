@@ -35,6 +35,7 @@ write_parameter(paramfile, r0, theta, OM, epsilon, sigma, symbols)
 
 # define GOMC object
 gomc = read(configfile)
+gomc.set("Restart", False)
 gomc.set("Parameters", paramfile)
 gomc.set("Rcut", 8.5)
 gomc.set("RcutCoulomb", 8.5)
@@ -42,4 +43,4 @@ gomc.set("Coordinates", 0, pdb1)
 gomc.set("Coordinates", 1, pdb2)
 gomc.set("Structure", 0, psf1)
 gomc.set("Structure", 1, psf2)
-gomc.write(configfile)
+gomc.run(gomc_exec="GOMC_CPU_GEMC", num_procs=4, gomc_input="in.conf2")

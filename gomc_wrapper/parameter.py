@@ -1,8 +1,12 @@
 class Parameter:
     def __init__(self, *types, multiline=False):
         self.types = types
-        self.values = []
         self.multiline = multiline
+        if multiline:
+            self.values = {}
+        else:
+            self.values = []
+        self.numprinted = 0
 
     def __repr__(self):
         return ', '.join(self.types)
@@ -10,8 +14,8 @@ class Parameter:
     def __str__(self):
         string = ""
         if self.multiline:
-            # for values in self.values:
-            for value, thistype in zip(self.values[0], self.types):
+            print(list(self.values.values())[self.numprinted])
+            for value, thistype in zip(list(self.values.values())[self.numprinted], self.types):
                 if thistype == int:
                     string += str(int(value)) + " \t"
                 elif thistype == float:
@@ -25,6 +29,7 @@ class Parameter:
                         string += "false \t"
                 elif thistype == list:
                     string += " \t".join(value)
+            self.numprinted += 1
         else:
             for value, thistype in zip(self.values, self.types):
                 if thistype == int:
@@ -45,11 +50,12 @@ class Parameter:
     def set(self, *values):
         if self.multiline:
             # save all inputs if multiple lines is allowed
-            self.values.append([])
+            self.values[values[0]] = []
             for value, thistype in zip(values, self.types):
-                self.values[-1].append(thistype(value))
+                self.values[values[0]].append(thistype(value))
         else:
             # overwrite inputs if multiple lines is not allowed
+            self.values = []
             for value, thistype in zip(values, self.types):
                 self.values.append(thistype(value))
 
@@ -59,10 +65,10 @@ parameters["Restart"] = Parameter(bool)
 parameters["RestartCheckpoint"] = Parameter(bool)
 parameters["PRNG"] = Parameter(str)
 parameters["Random_Seed"] = Parameter(int)
-parameters["ParaTypeCHARMM"] = Parameter(bool)
-parameters["ParaTypeEXOTIC"] = Parameter(bool)
-parameters["ParaTypeMie"] = Parameter(bool)
-parameters["ParaTypeMARTINI"] = Parameter(bool)
+parameters["ParaTypeCHARMM"] = Parameter(str)
+parameters["ParaTypeEXOTIC"] = Parameter(str)
+parameters["ParaTypeMie"] = Parameter(str)
+parameters["ParaTypeMARTINI"] = Parameter(str)
 parameters["Parameters"] = Parameter(str)
 parameters["Coordinates"] = Parameter(int, str, multiline=True)
 parameters["Structure"] = Parameter(int, str, multiline=True)
