@@ -15,6 +15,29 @@ def add_box(self, coordinates, structure, hmatrix):
              hmatrix[2][0], hmatrix[2][1], hmatrix[2][2])
 
 
+def set_box(self, id, nummol, substance, density=None, volume=None):
+    """Set box with box id 'id'. Density is number density
+    """
+    from .file_handling import write_molecule, write_pdb, write_topology, write_parameters
+
+    if density is None or volume is None:
+        pass
+    else:
+        raise ValueError("either volume or density has to be given")
+
+    if density is None and volume is None:
+        raise ValueError("either volume or density has to be given")
+    elif density is not None and volume is not None:
+        raise ValueError("either volume or density has to be given")
+    elif density is not None:
+        volume = nummol / density
+
+    box_length = volume**(1/3)
+
+    write_molecule(bonds, angles)
+    write_topology()
+
+
 def set_steps(self, run, eq=0, adj=0):
     """Set number of steps
     """

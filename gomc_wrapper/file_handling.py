@@ -293,7 +293,6 @@ def write_molecule(bonds, angles={}):
                 last_index = atoms.index(angle_atoms[2])
 
                 # utilize that middle atom lies on x-axis
-                
 
     if len(atoms) > 4:
         raise AttributeError(
@@ -303,6 +302,14 @@ def write_molecule(bonds, angles={}):
     for coordinate in coordinates:
         plt.plot(coordinate[0], coordinate[1], 'o')
     plt.show()
+
+
+def write_pdb(nummol, single_mol, volume=None, density=None):
+    """Write PDB file using Packmol
+
+    Either volume or density has to be given. Assuming cubic box
+    """
+    
 
 
 def psfgen(coordinates="coord.pdb", topology="topology.inp", genfile=None):
