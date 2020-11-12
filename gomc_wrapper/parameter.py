@@ -61,7 +61,7 @@ class Parameter:
 
 
 parameters = {}
-parameters["Restart"] = Parameter(bool)
+parameters["Restart"] = Parameter(str)
 parameters["RestartCheckpoint"] = Parameter(bool)
 parameters["PRNG"] = Parameter(str)
 parameters["Random_Seed"] = Parameter(int)
