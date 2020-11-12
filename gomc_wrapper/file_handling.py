@@ -1,5 +1,7 @@
 import os
 import datetime
+import tempfile
+import subprocess
 import numpy as np
 import pandas as pd
 from io import StringIO
@@ -304,12 +306,33 @@ def write_molecule(bonds, angles={}):
     plt.show()
 
 
-def write_pdb(nummol, single_mol, volume=None, density=None):
+def write_pdb(nummol, length, single_mol, tolerance=2.0, filetype='pdb',
+              outfile=None):
     """Write PDB file using Packmol
 
     Either volume or density has to be given. Assuming cubic box
     """
-    
+    if outfile is None:
+        outfile = "out." + filetype
+    # with tempfile.TemporaryDirectory() as tmp_dir:
+    #    os.chdir(tmp_dir)
+    #    sys.path.append(tmp_dir)
+    with open("input.inp", 'w') as f:
+        f.write(f"tolerance {tolerance}\n")
+        f.write(f"filetype {filetype}\n")
+        f.write(f"output {outfile}\n\n")
+        f.write(f"structure {single_mol}\n")
+        f.write(f"  number {nummol}\n")
+        f.write(f"  inside cude 0. 0. 0. {length}\n")
+        f.write("end structure")
+
+    # Run packmol input script
+    try:
+        # os.system("packmol < input.inp")
+        subprocess.Popen(["packmol", "<", "input.inp"])
+    except:
+        raise OSError("packmol is not found. For installation instructions, \
+                       see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
 
 
 def psfgen(coordinates="coord.pdb", topology="topology.inp", genfile=None):
