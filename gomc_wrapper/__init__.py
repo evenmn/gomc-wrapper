@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 from .parameter import parameters
-from .file_handling import read, write_topology, write_parameter, psfgen
+from .file_handling import read, write_topology, write_parameter, write_molecule, write_pdb, write_jobscript, psfgen
 
 
 class GOMC:
@@ -15,7 +15,7 @@ class GOMC:
         self.wd = ""
 
     # import
-    from .config import add_box, set_steps, set_prob
+    from .config import add_box, set_box, set_steps, set_prob, set_cbmc, set_freq, set_out
     from .file_handling import write
 
     def set(self, keyword, *values):
@@ -55,11 +55,18 @@ class GOMC:
             head, tail = os.path.split(file)
             shutil.copyfile(file, self.wd + tail)
 
-    def run(self, gomc_exec='GOMC_CPU_NVT', num_procs=1, gomc_input='in.conf'):
+    def run(self, gomc_exec='GOMC_CPU_NVT', num_procs=1, gomc_input='in.conf',
+            slurm=False, slurm_args={}, jobscript='job.sh'):
         """Run
         """
         self.write(gomc_input)
-        subprocess.Popen([gomc_exec, f"+p{num_procs}", gomc_input])
+        executable = f"{gomc_exec} +p{num_procs} {gomc_input}"
+        if slurm:
+            write_jobscript(jobscript, executable, slurm_args)
+            subprocess.Popen(['sbatch', jobscript])
+        else:
+            # os.system(executable)
+            subprocess.Popen(executable.split())
 
 
 if __name__ == "__main__":

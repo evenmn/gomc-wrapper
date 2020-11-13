@@ -18,7 +18,7 @@ def add_box(self, coordinates, structure, hmatrix):
 def set_box(self, id, nummol, substance, density=None, volume=None):
     """Set box with box id 'id'. Density is number density
     """
-    from .file_handling import write_molecule, write_pdb, write_topology, write_parameters
+    from .file_handling import write_molecule, write_pdb, write_topology, write_parameters, psfgen
 
     if density is None or volume is None:
         pass
@@ -34,8 +34,41 @@ def set_box(self, id, nummol, substance, density=None, volume=None):
 
     box_length = volume**(1/3)
 
-    write_molecule(bonds, angles)
-    write_topology()
+    molfile = "molecule.pdb"
+    coordfile = f"box_{id}.pdb"
+    topofile = "topology.inp"
+    psffile = f"box_{id}.pdb"
+    paramfile = "param.inp"
+
+    # write molecule file
+    write_molecule(bonds=substance.bonds, angles=substance.angles,
+                   filename=molfile)
+
+    # write pdb file using Packmol
+    write_pdb(nummol, box_length, single_mol=molfile, outfile=coordfile)
+
+    # write topology file
+    write_topology(atoms=substance.atom_types, labels=substance.atom_labels,
+                   mass=substance.masses, charge=substance.charges,
+                   bonds=substance.bond_types, molname=substance.__repr__(),
+                   filename=topofile)
+
+    # generate PSF file
+    psfgen(coordinates=coordfile, topology=topofile, genfile=psffile)
+
+    # generate parameter file
+    write_parameters(paramfile)
+
+    self.set("Parameters", paramfile)
+    self.set("ParaTypeCHARMM", "on")
+    self.set("Rcut", substance.Rcut)
+    self.set("RcutLow", substance.RcutLow)
+    self.set("RcutCoulomb", substance.Rcut)
+    self.set("Coordinates", id, coordfile)
+    self.set("Structure", id, psffile)
+    self.set("CellBasisVector1", id, box_length, 0, 0)
+    self.set("CellBasisVector1", id, 0, box_length, 0)
+    self.set("CellBasisVector1", id, 0, 0, box_length)
 
 
 def set_steps(self, run, eq=0, adj=0):
@@ -63,3 +96,38 @@ def set_prob(self, dis=0.0, rot=0.0, intraswap=0.0, regrowth=0.0,
     for key, value in dct.items():
         if value > 0:
             self.set(key, value)
+
+
+def set_cbmc(self, first, nth, ang, dih):
+    """Set parameters for Configuration-Biased Monte Carlo (CBMC)
+    """
+    dct = {"CBMC_First": first, "CBMC_Nth": nth, "CBMC_Ang": ang, "CBMC_Dih": dih}
+
+    for key, value in dct.items():
+        self.set(key, value)
+
+
+def set_freq(self, coord=None, restart=None, console=None, block=None,
+             checkpoint=None, histogram=None):
+    """Set write frequencies
+    """
+    dct = {"CoordinatesFreq": coord, "RestartFreq": restart,
+           "ConsoleFreq": console, "BlockAverageFreq": block,
+           "CheckpointFreq": checkpoint, "HistogramFreq": histogram}
+
+    for key, value in dct.items():
+        if value is not None:
+            self.set(key, "true", value)
+
+
+def set_out(self, energy=False, pressure=False, molnum=False, density=False,
+            volume=False, surfacetension=False):
+    """Set block averaged outputs
+    """
+    dct = {"OutEnergy": energy, "OutPressure": pressure, "OutMolNum": molnum,
+           "OutDensity": density, "OutVolume": volume,
+           "OutSurfaceTension": surfacetension}
+
+    for key, value in dct.items():
+        if value:
+            self.set(key, "true", "true")

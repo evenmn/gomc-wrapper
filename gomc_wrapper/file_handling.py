@@ -181,7 +181,7 @@ def write_topology(filename="topology.inp", atoms=['O', 'H', 'H', 'M'],
 def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
                     theta=104.52, OM=0.1546, epsilon=0.1856, sigma=3.16,
                     symbols={'O': 'O', 'H': 'H', 'M': 'M'}):
-    """Write parameter file
+    """Write parameter file, type CHARMM
     """
     large = 9999999999
     with open(filename, 'w') as f:
@@ -230,7 +230,7 @@ def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
         f.write(temp_nb.format(symbols['O'], 0.0, epsilon, sigma, 0.0, 0.0, 0.0))
 
 
-def write_molecule(bonds, angles={}):
+def write_molecule(bonds, angles={}, filename="molecule.pdb"):
     """Write a PDB for a single molecule. Support molecules with two to
     four atoms.
 
@@ -309,8 +309,6 @@ def write_molecule(bonds, angles={}):
 def write_pdb(nummol, length, single_mol, tolerance=2.0, filetype='pdb',
               outfile=None):
     """Write PDB file using Packmol
-
-    Either volume or density has to be given. Assuming cubic box
     """
     if outfile is None:
         outfile = "out." + filetype
@@ -333,6 +331,18 @@ def write_pdb(nummol, length, single_mol, tolerance=2.0, filetype='pdb',
     except:
         raise OSError("packmol is not found. For installation instructions, \
                        see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
+
+
+def write_jobscript(filename, executable, slurm_args={}):
+    """Write jobscript for Slurm
+    """
+    string = "#!/bin/bash\n"
+    temp = "#SBATCH --{}={}\n"
+    for key, value in slurm_args.items():
+        string += temp.format(key, value)
+    string += "\n\n" + executable + "\n"
+    with open(filename, 'w') as f:
+        f.write(string)
 
 
 def psfgen(coordinates="coord.pdb", topology="topology.inp", genfile=None):
