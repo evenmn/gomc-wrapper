@@ -15,24 +15,23 @@ def add_box(self, coordinates, structure, hmatrix):
              hmatrix[2][0], hmatrix[2][1], hmatrix[2][2])
 
 
-def set_box(self, id, nummol, substance, density=None, volume=None):
+def set_box(self, id, nummol, substance, numberdensity=None, massdensity=None,
+            volume=None, pbc=0):
     """Set box with box id 'id'. Density is number density
     """
-    from .file_handling import write_molecule, write_pdb, write_topology, write_parameters, psfgen
+    from .file_handling import write_molecule, write_pdb, write_topology, write_parameter, psfgen
 
-    if density is None or volume is None:
-        pass
-    else:
-        raise ValueError("either volume or density has to be given")
+    assert [numberdensity, massdensity, volume].count(None) == 2, \
+        "Either volume or density has to be given"
 
-    if density is None and volume is None:
-        raise ValueError("either volume or density has to be given")
-    elif density is not None and volume is not None:
-        raise ValueError("either volume or density has to be given")
-    elif density is not None:
-        volume = nummol / density
+    if numberdensity is not None:
+        volume = nummol / numberdensity
+    if massdensity is not None:
+        molmass = sum(list(substance.masses.values()))
+        totmass = nummol * molmass
+        volume = totmass / massdensity
 
-    box_length = volume**(1/3)
+    box_length = volume**(1/3) - pbc
 
     molfile = "molecule.pdb"
     coordfile = f"box_{id}.pdb"
@@ -57,7 +56,7 @@ def set_box(self, id, nummol, substance, density=None, volume=None):
     psfgen(coordinates=coordfile, topology=topofile, genfile=psffile)
 
     # generate parameter file
-    write_parameters(paramfile)
+    write_parameter(paramfile)
 
     self.set("Parameters", paramfile)
     self.set("ParaTypeCHARMM", "on")
@@ -66,9 +65,9 @@ def set_box(self, id, nummol, substance, density=None, volume=None):
     self.set("RcutCoulomb", substance.Rcut)
     self.set("Coordinates", id, coordfile)
     self.set("Structure", id, psffile)
-    self.set("CellBasisVector1", id, box_length, 0, 0)
-    self.set("CellBasisVector1", id, 0, box_length, 0)
-    self.set("CellBasisVector1", id, 0, 0, box_length)
+    self.set("CellBasisVector1", id, box_length + pbc, 0, 0)
+    self.set("CellBasisVector1", id, 0, box_length + pbc, 0)
+    self.set("CellBasisVector1", id, 0, 0, box_length + pbc)
 
 
 def set_steps(self, run, eq=0, adj=0):
