@@ -57,18 +57,24 @@ class Parameter:
             # overwrite inputs if multiple lines is not allowed
             self.values = []
             for value, thistype in zip(values, self.types):
+                if thistype is bool:
+                    print(value, thistype)
+                    if str(value).lower() in ['false', 'no', 'off']:
+                        value = False
+                    else:
+                        value is True
                 self.values.append(thistype(value))
 
 
 parameters = {}
-parameters["Restart"] = Parameter(str)
+parameters["Restart"] = Parameter(bool)
 parameters["RestartCheckpoint"] = Parameter(bool)
 parameters["PRNG"] = Parameter(str)
 parameters["Random_Seed"] = Parameter(int)
-parameters["ParaTypeCHARMM"] = Parameter(str)
-parameters["ParaTypeEXOTIC"] = Parameter(str)
-parameters["ParaTypeMie"] = Parameter(str)
-parameters["ParaTypeMARTINI"] = Parameter(str)
+parameters["ParaTypeCHARMM"] = Parameter(bool)
+parameters["ParaTypeEXOTIC"] = Parameter(bool)
+parameters["ParaTypeMie"] = Parameter(bool)
+parameters["ParaTypeMARTINI"] = Parameter(bool)
 parameters["Parameters"] = Parameter(str)
 parameters["Coordinates"] = Parameter(int, str, multiline=True)
 parameters["Structure"] = Parameter(int, str, multiline=True)
