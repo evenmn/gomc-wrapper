@@ -321,7 +321,7 @@ def write_pdb(nummol, length, single_mol, tolerance=2.0, filetype='pdb',
         f.write(f"output {outfile}\n\n")
         f.write(f"structure {single_mol}\n")
         f.write(f"  number {nummol}\n")
-        f.write(f"  inside cude 0. 0. 0. {length}\n")
+        f.write(f"  inside cube 0. 0. 0. {length}\n")
         f.write("end structure")
 
     # Run packmol input script
