@@ -332,7 +332,6 @@ def write_molecule(bonds, angles={}, filename="molecule.pdb", molname='TIP4P'):
                 potential_points.append([p1, p2])
 
         # pick the correct coordinates of the fourth particle
-        print(atoms_ordered)
         for point1 in potential_points[0]:
             for point2 in potential_points[1]:
                 if np.allclose(point1, point2):
@@ -373,8 +372,8 @@ def write_pdb(nummol, length, single_mol, tolerance=2.0, filetype='pdb',
 
     # Run packmol input script
     try:
-        # os.system("packmol < input.inp")
-        subprocess.Popen(["packmol", "<", "input.inp"])
+        os.system("packmol < input.inp")
+        # subprocess.run(["packmol", "<", "input.inp"])
     except:
         raise OSError("packmol is not found. For installation instructions, \
                        see http://m3g.iqm.unicamp.br/packmol/download.shtml.")
