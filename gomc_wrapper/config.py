@@ -36,7 +36,7 @@ def set_box(self, id, nummol, substance, numberdensity=None, massdensity=None,
     molfile = "molecule.pdb"
     coordfile = f"box_{id}.pdb"
     topofile = "topology.inp"
-    psffile = f"box_{id}.pdb"
+    psffile = f"box_{id}.psf"
     paramfile = "param.inp"
 
     # write molecule file
@@ -58,16 +58,19 @@ def set_box(self, id, nummol, substance, numberdensity=None, massdensity=None,
     # generate parameter file
     write_parameter(paramfile)
 
+    # set parameters related to the force-field
+    for key, value in substance.gomc_parameters.items():
+        self.set(key, value)
+
+    # set parameters related to the box
     self.set("Parameters", paramfile)
     self.set("ParaTypeCHARMM", "on")
-    self.set("Rcut", substance.Rcut)
-    self.set("RcutLow", substance.RcutLow)
-    self.set("RcutCoulomb", substance.Rcut)
+    self.set("RcutCoulomb", id, substance.gomc_parameters['Rcut'])
     self.set("Coordinates", id, coordfile)
     self.set("Structure", id, psffile)
     self.set("CellBasisVector1", id, box_length + pbc, 0, 0)
-    self.set("CellBasisVector1", id, 0, box_length + pbc, 0)
-    self.set("CellBasisVector1", id, 0, 0, box_length + pbc)
+    self.set("CellBasisVector2", id, 0, box_length + pbc, 0)
+    self.set("CellBasisVector3", id, 0, 0, box_length + pbc)
 
 
 def set_steps(self, run, eq=0, adj=0):
