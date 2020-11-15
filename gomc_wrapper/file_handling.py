@@ -230,7 +230,7 @@ def write_parameter(filename="Par_TIP4P-2020_Charmm.inp", r0=0.9572,
         f.write(temp_nb.format(symbols['O'], 0.0, epsilon, sigma, 0.0, 0.0, 0.0))
 
 
-def write_molecule(bonds, angles={}, filename="molecule.pdb"):
+def write_molecule(bonds, angles={}, filename="molecule.pdb", molname='TIP4P'):
     """Write a PDB for a single molecule. Support molecules with two to
     four atoms.
 
@@ -245,12 +245,17 @@ def write_molecule(bonds, angles={}, filename="molecule.pdb"):
         atoms[atom1] = None
         atoms[atom2] = None
     atoms = list(atoms.keys())
+    atoms_ordered = []
 
     # place first atom in origin
     coordinates = np.zeros((len(atoms), 3))
 
     # place second atom along x-axis
-    coordinates[1, 0] = bonds[list(bonds.keys())[0]]
+    first_bond = list(bonds.keys())[0]
+    coordinates[1, 0] = bonds[first_bond]
+    first_two_atoms = first_bond.split(",")
+    for first in first_two_atoms:
+        atoms_ordered.append(first)
 
     if len(atoms) > 2:
         # place third atom in the xy-plane
@@ -275,6 +280,7 @@ def write_molecule(bonds, angles={}, filename="molecule.pdb"):
         y_third = bond * np.sin(np.deg2rad(angle))
 
         coordinates[2] = [x_third, y_third, 0]
+        atoms_ordered.append(third_atom[0])
 
     if len(atoms) > 3:
         # place fourth atom somewhere in the space that satisfies conditions
@@ -285,25 +291,66 @@ def write_molecule(bonds, angles={}, filename="molecule.pdb"):
 
         fourth_index = 6 - sum(distributed_atom_indices)
         fourth_atom = atoms[fourth_index]
+        atoms_ordered.append(fourth_atom)
 
+        # find potential locations of the fourth particle
+        potential_points = []
         for angleatoms, angle in angles.items():
             angle_atoms = angleatoms.split(",")
             if fourth_atom in angle_atoms:
                 assert fourth_atom != angle_atoms[1], "Circular bonding"
-                first_index = atoms.index(angle_atoms[0])
-                middle_index = atoms.index(angle_atoms[1])
-                last_index = atoms.index(angle_atoms[2])
+                middle_atom = angle_atoms[1]
+                middle_index = atoms.index(middle_atom)
 
-                # utilize that middle atom lies on x-axis
+                # find angle ordering
+                if fourth_atom == angle_atoms[0]:
+                    this_atom = angle_atoms[0]
+                    other_atom = angle_atoms[2]
+                    this_index = atoms.index(this_atom)
+                    other_index = atoms.index(other_atom)
+                else:
+                    other_atom = angle_atoms[0]
+                    this_atom = angle_atoms[2]
+                    other_index = atoms.index(other_atom)
+                    this_index = atoms.index(this_atom)
+
+                A = coordinates[middle_index]
+                B = coordinates[other_index]
+
+                # find bond length
+                for bondatoms, bondlength in bonds.items():
+                    bondatoms = bondatoms.split(",")
+                    if this_atom in bondatoms and middle_atom in bondatoms:
+                        break
+
+                # use simple trigonometric relations to find potential points
+                theta2 = np.arctan2(B[1] - A[1], B[0] - A[0])
+                phi1 = theta2 + np.deg2rad(angle)
+                phi2 = theta2 - np.deg2rad(angle)
+                p1 = [bondlength * np.cos(phi1), bondlength * np.sin(phi1)]
+                p2 = [bondlength * np.cos(phi2), bondlength * np.sin(phi2)]
+                potential_points.append([p1, p2])
+
+        # pick the correct coordinates of the fourth particle
+        print(atoms_ordered)
+        for point1 in potential_points[0]:
+            for point2 in potential_points[1]:
+                if np.allclose(point1, point2):
+                    break
+        coordinates[3] = [point2[0], point2[1], 0]
 
     if len(atoms) > 4:
         raise AttributeError(
             "Not able to construct molecules containing > 4 atoms")
 
-    import matplotlib.pyplot as plt
-    for coordinate in coordinates:
-        plt.plot(coordinate[0], coordinate[1], 'o')
-    plt.show()
+
+    # write to file
+    temp = "ATOM   {:>4}  {:<4}{:<4}{:>4}{:>10.3f}{:>10.3f}{:>10.3f}{:>6.2f}{:>6.2f}\n"
+    with open(filename, 'w') as f:
+        f.write("CRYST1    0.000    0.000    0.000  90.00  90.00  90.00 P 1          1\n")
+        for i, coord in enumerate(coordinates):
+            f.write(temp.format(i+1, atoms_ordered[i], molname[:4], 1, coord[0], coord[1], coord[2], 0, 0))
+        f.write("END\n")
 
 
 def write_pdb(nummol, length, single_mol, tolerance=2.0, filetype='pdb',
