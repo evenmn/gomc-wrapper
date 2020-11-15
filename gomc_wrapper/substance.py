@@ -23,16 +23,30 @@ class TIP4P2005(Substance):
         self.atom_types = ['O', 'H', 'H', 'M']
         self.bond_types = ['OH', 'OM']
         self.masses = {'O': 15.9994, 'H': 1.0079, 'M': 0.0}
-        self.charges = {'O': 0.0, 'H': 0.5564, 'M': -1.128}
+        self.charges = {'O': 0.0, 'H': 0.5564, 'M': -1.1128}
         self.bonds = {'O,H1': 0.9572, 'O,H2': 0.9572, 'O,M': 0.1546}
         self.angles = {'H1,O,H2': 104.52, 'H1,O,M': 52.26, 'H2,O,M': 52.26}
-        self.lj_parameters = {'OO': [0.1852, 3.1589],
-                              'OH': [0.0000, 0.0000],
-                              'HH': [0.0000, 0.0000]}
-        self.gomc_parameters = {'Rcut': 8.5, 'LRC': 'true', 'Exclude': '1-4',
-                                'Potential': 'VDW', 'ElectroStatic': 'true',
-                                'Ewald': 'true', 'CachedFourier': 'true',
-                                'Tolerance': 1e-5}
+        self.lj_parameters = {'OO': {'epsilon': 0.1852, 'sigma': 3.1589},
+                              'OH': {'epsilon': 0.0000, 'sigma': 0.0000},
+                              'HH': {'epsilon': 0.0000, 'sigma': 0.0000}}
+        self.gomc_parameters = {'Rcut': 8.5, 'LRC': True, 'Exclude': '1-4',
+                                'Potential': 'VDW', 'ElectroStatic': True,
+                                'Ewald': True, 'CachedFourier': True,
+                                'Tolerance': 1e-5, 'RcutLow': 1.0}
 
     def __repr__(self):
         return "TIP4P/2005"
+
+    def set_parameters(self, Z_H, r0, OM, theta, epsilon, sigma):
+        """Set TIP4P parameters
+        """
+        self.charges['H'] = Z_H
+        self.charges['M'] = - 2 * Z_H
+        self.bonds['O,H1'] = r0
+        self.bonds['O,H2'] = r0
+        self.bonds['O,M'] = OM
+        self.angles['H1,O,H2'] = theta
+        self.angles['H1,O,M'] = theta/2
+        self.angles['H2,O,M'] = theta/2
+        self.lj_parameters['OO']['epsilon'] = epsilon
+        self.lj_parameters['OO']['sigma'] = sigma
