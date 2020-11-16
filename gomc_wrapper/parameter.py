@@ -11,54 +11,52 @@ class Parameter:
     def __repr__(self):
         return ', '.join(self.types)
 
-    def __str__(self):
+    @staticmethod
+    def print_style(values, types):
+        """Define how different types should be printed
+        """
         string = ""
+        for value, thistype in zip(values, types):
+            if thistype == int:
+                string += str(int(value)) + " \t"
+                # string += f"{value:>7d}"
+            elif thistype == float:
+                string += str(float(value)) + " \t"
+                # string += f"{value:>7.3f}"
+            elif thistype == str:
+                string += str(value)
+            elif thistype == bool:
+                if value is True:
+                    string += "true \t"
+                    # string += "   true"
+                else:
+                    string += "false \t"
+                    # string += "  false"
+            else:
+                raise NotImplementedError(f"Type {thistype} is not supported")
+        return string
+
+    def __str__(self):
         if self.multiline:
-            print(list(self.values.values())[self.numprinted])
-            for value, thistype in zip(list(self.values.values())[self.numprinted], self.types):
-                if thistype == int:
-                    string += str(int(value)) + " \t"
-                elif thistype == float:
-                    string += str(float(value)) + " \t"
-                elif thistype == str:
-                    string += str(value) + " \t"
-                elif thistype == bool:
-                    if value is True:
-                        string += "true \t"
-                    else:
-                        string += "false \t"
-                elif thistype == list:
-                    string += " \t".join(value)
+            values = list(self.values.values())[self.numprinted]
+            string = self.print_style(values, self.types)
             self.numprinted += 1
         else:
-            for value, thistype in zip(self.values, self.types):
-                if thistype == int:
-                    string += str(int(value)) + " \t"
-                elif thistype == float:
-                    string += str(float(value)) + " \t"
-                elif thistype == str:
-                    string += str(value) + " \t"
-                elif thistype == bool:
-                    if value is True:
-                        string += "true \t"
-                    else:
-                        string += "false \t"
-                elif thistype == list:
-                    string += " \t".join(value)
+            string = self.print_style(self.values, self.types)
         return string
 
     def set(self, *values):
         if self.multiline:
             # save all inputs if multiple lines is allowed
-            self.values[values[0]] = []
+            box_id = int(values[0])
+            self.values[box_id] = []
             for value, thistype in zip(values, self.types):
-                self.values[values[0]].append(thistype(value))
+                self.values[box_id].append(thistype(value))
         else:
             # overwrite inputs if multiple lines is not allowed
             self.values = []
             for value, thistype in zip(values, self.types):
                 if thistype is bool:
-                    print(value, thistype)
                     if str(value).lower() in ['false', 'no', 'off']:
                         value = False
                     else:
@@ -82,7 +80,7 @@ parameters["Structures"] = Parameter(int, str, multiline=True)
 parameters["MultiSimFolderName"] = Parameter(str)
 parameters["GEMC"] = Parameter(str)
 parameters["Pressure"] = Parameter(float)
-parameters["Temperature"] = Parameter(float)
+parameters["Temperature"] = Parameter(float, float, float, float, float)
 parameters["Rcut"] = Parameter(float)
 parameters["RcutLow"] = Parameter(float)
 parameters["RcutCoulomb"] = Parameter(int, float, multiline=True)
