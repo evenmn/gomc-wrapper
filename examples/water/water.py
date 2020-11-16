@@ -27,14 +27,18 @@ bonds = ['OH', 'OM']
 molname = 'TIP4P'
 symbols = {'O': 'O', 'H': 'H', 'M': 'M'}
 
+# define GOMC object
+gomc = read(configfile)
+gomc.set_working_directory("simulations")
+gomc.copy_to_wd(paramfile, pdb1, pdb2)
+
 # generate files
 write_topology(topofile, atoms, labels, mass, charge, bonds, molname)
 psfgen(coordinates=pdb1, topology=topofile, genfile=psf1)
 psfgen(coordinates=pdb2, topology=topofile, genfile=psf2)
 write_parameter(paramfile, r0, theta, OM, epsilon, sigma, symbols)
 
-# define GOMC object
-gomc = read(configfile)
+# modify GOMC object
 gomc.set("Restart", False)
 gomc.set("Parameters", paramfile)
 gomc.set("Rcut", 8.5)
@@ -43,4 +47,5 @@ gomc.set("Coordinates", 0, pdb1)
 gomc.set("Coordinates", 1, pdb2)
 gomc.set("Structure", 0, psf1)
 gomc.set("Structure", 1, psf2)
+# gomc.write("in.conf2")
 gomc.run(gomc_exec="GOMC_CPU_GEMC", num_procs=1, gomc_input="in.conf2")
