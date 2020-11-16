@@ -12,7 +12,7 @@ class GOMC:
 
         self.numboxes = 0
         self.boxes = []
-        self.wd = ""
+        self.cwd = os.getcwd()
 
     # import
     from .config import add_box, set_box, set_steps, set_prob, set_cbmc, set_freq, set_out
@@ -22,9 +22,9 @@ class GOMC:
         self.parameters[keyword].set(*values)
 
     def set_working_directory(self, wd, overwrite=False):
-        self.wd = wd
+        """Define working directory
+        """
         if overwrite:
-            self.wd = wd
             try:
                 os.makedirs(wd)
             except FileExistsError:
@@ -34,12 +34,12 @@ class GOMC:
             repeat = True
             while repeat:
                 try:
-                    os.makedirs(self.wd)
+                    os.makedirs(wd)
                     repeat = False
                 except FileExistsError:
                     ext += 1
-                    self.wd = wd + f"_{ext}"
-        self.wd += "/"
+                    wd += f"_{ext}"
+        os.chdir(wd)
 
     def copy_to_wd(self, *filename):
         """Copy one or several files to working directory.
@@ -49,8 +49,9 @@ class GOMC:
         """
 
         for file in filename:
-            head, tail = os.path.split(file)
-            shutil.copyfile(file, self.wd + tail)
+            path = os.path.join(self.cwd, file)
+            head, tail = os.path.split(path)
+            shutil.copyfile(path, tail)
 
     def run(self, gomc_exec='GOMC_CPU_NVT', num_procs=1, gomc_input='in.conf',
             slurm=False, slurm_args={}, jobscript='job.sh'):
@@ -64,11 +65,3 @@ class GOMC:
         else:
             # os.system(executable)
             subprocess.Popen(executable.split())
-
-
-if __name__ == "__main__":
-    gomc = GOMC()
-    gomc.set("PRNG", "RANDOM")
-    gomc.add_box("some.pdb", "some.psf", [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-    gomc.add_box("some2.pdb", "some2.psf", [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-    gomc.write("test")

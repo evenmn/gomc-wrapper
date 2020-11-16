@@ -1,7 +1,5 @@
 import os
 import datetime
-import tempfile
-import subprocess
 import numpy as np
 import pandas as pd
 from io import StringIO
@@ -25,10 +23,8 @@ def write(self, filename='in.conf', verbose=True):
     """Write GOMC parameter file
     """
     now = datetime.datetime.now()
-    filepath = os.path.join(self.wd, filename)
 
-    with open(filepath, 'w') as f:
-
+    with open(filename, 'w') as f:
         f.write("#" * 30 + "\n")
         f.write("## Written by GOMC-wrapper \n")
         f.write(f"## DATE: {now:%Y-%m-%d %H:%M:%S}\n")
@@ -342,7 +338,6 @@ def write_molecule(bonds, angles={}, filename="molecule.pdb", molname='TIP4P'):
         raise AttributeError(
             "Not able to construct molecules containing > 4 atoms")
 
-
     # write to file
     temp = "ATOM   {:>4}  {:<4}{:<4}{:>4}{:>10.3f}{:>10.3f}{:>10.3f}{:>6.2f}{:>6.2f}\n"
     with open(filename, 'w') as f:
@@ -358,9 +353,6 @@ def write_pdb(nummol, length, single_mol, tolerance=2.0, filetype='pdb',
     """
     if outfile is None:
         outfile = "out." + filetype
-    # with tempfile.TemporaryDirectory() as tmp_dir:
-    #    os.chdir(tmp_dir)
-    #    sys.path.append(tmp_dir)
     with open("input.inp", 'w') as f:
         f.write(f"tolerance {tolerance}\n")
         f.write(f"filetype {filetype}\n")
@@ -431,7 +423,6 @@ def psfgen(coordinates="coord.pdb", topology="topology.inp", genfile=None):
                     autogenerate.append(splitted[i])
             elif line.startswith("RESI "):
                 mollabel = splitted[1]
-                molcharge = splitted[2]
             elif line.startswith("ATOM "):
                 atom_labels.append(splitted[1])
                 atoms.append(splitted[2])
@@ -553,9 +544,3 @@ def psfgen(coordinates="coord.pdb", topology="topology.inp", genfile=None):
         f.write("\n")
         f.write(temp.format(1, f"{0:>8} !NGRP"))
         f.write(temp.format(0, f"{0:>8}{0:>8}"))
-
-
-if __name__ == "__main__":
-    bonds = {"O,H1": 0.9572, "O,H2": 0.9572, "O,M": 0.1546}
-    angles = {"H1,O,H2": 104.52, "H1,O,M": 52.26, "H2,O,M": 52.26}
-    write_molecule(bonds, angles)
