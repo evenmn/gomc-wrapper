@@ -19,10 +19,7 @@ class GOMC:
     from .file_handling import write
 
     def set(self, keyword, *values):
-        print(" ")
-        print(keyword)
         self.parameters[keyword].set(*values)
-        print(self.parameters[keyword].values)
 
     def set_working_directory(self, wd, overwrite=False):
         self.wd = wd
