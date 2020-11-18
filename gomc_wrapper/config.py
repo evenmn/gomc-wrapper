@@ -19,7 +19,7 @@ def set_box(self, id, nummol, substance, numberdensity=None, massdensity=None,
             volume=None, pbc=0):
     """Set box with box id 'id'. Density is number density
     """
-    from .file_handling import write_molecule, write_pdb, write_topology, write_parameter, psfgen
+    from .file_handling import read, write_topology, write_parameter, write_molecule, write_pdb, write_jobscript, psfgen
 
     assert [numberdensity, massdensity, volume].count(None) == 2, \
         "Either volume or density has to be given"
@@ -59,13 +59,13 @@ def set_box(self, id, nummol, substance, numberdensity=None, massdensity=None,
     write_parameter(paramfile)
 
     # set parameters related to the force-field
-    for key, value in substance.gomc_parameters.items():
+    for key, value in substance.gomc_params.items():
         self.set(key, value)
 
     # set parameters related to the box
     self.set("Parameters", paramfile)
     self.set("ParaTypeCHARMM", "on")
-    self.set("RcutCoulomb", id, substance.gomc_parameters['Rcut'])
+    self.set("RcutCoulomb", id, substance.gomc_params['Rcut'])
     self.set("Coordinates", id, coordfile)
     self.set("Structure", id, psffile)
     self.set("CellBasisVector1", id, box_length + pbc, 0, 0)

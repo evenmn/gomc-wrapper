@@ -19,20 +19,20 @@ class TIP3P(Substance):
 
 class TIP4P2005(Substance):
     def __init__(self):
-        self.atom_labels = ['O', 'H1', 'H2', 'M']
+        self.atom_labels = ['O1', 'H1', 'H2', 'M1']
         self.atom_types = ['O', 'H', 'H', 'M']
         self.bond_types = ['OH', 'OM']
         self.masses = {'O': 15.9994, 'H': 1.0079, 'M': 0.0}
         self.charges = {'O': 0.0, 'H': 0.5564, 'M': -1.1128}
-        self.bonds = {'O,H1': 0.9572, 'O,H2': 0.9572, 'O,M': 0.1546}
-        self.angles = {'H1,O,H2': 104.52, 'H1,O,M': 52.26, 'H2,O,M': 52.26}
-        self.lj_parameters = {'OO': {'epsilon': 0.1852, 'sigma': 3.1589},
-                              'OH': {'epsilon': 0.0000, 'sigma': 0.0000},
-                              'HH': {'epsilon': 0.0000, 'sigma': 0.0000}}
-        self.gomc_parameters = {'Rcut': 8.5, 'LRC': True, 'Exclude': '1-4',
-                                'Potential': 'VDW', 'ElectroStatic': True,
-                                'Ewald': True, 'CachedFourier': True,
-                                'Tolerance': 1e-5, 'RcutLow': 1.0}
+        self.bonds = {'O1,H1': 0.9572, 'O1,H2': 0.9572, 'O1,M1': 0.1546}
+        self.angles = {'H1,O1,H2': 104.52, 'H1,O1,M1': 52.26, 'H2,O1,M1': 52.26}
+        self.lj_params = {'OO': {'epsilon': 0.1852, 'sigma': 3.1589},
+                          'OH': {'epsilon': 0.0000, 'sigma': 0.0000},
+                          'HH': {'epsilon': 0.0000, 'sigma': 0.0000}}
+        self.gomc_params = {'Rcut': 8.5, 'LRC': True, 'Exclude': '1-4',
+                            'Potential': 'VDW', 'ElectroStatic': True,
+                            'Ewald': True, 'CachedFourier': True,
+                            'Tolerance': 1e-5, 'RcutLow': 1.0}
 
     def __repr__(self):
         return "TIP4P/2005"
@@ -48,5 +48,5 @@ class TIP4P2005(Substance):
         self.angles['H1,O,H2'] = theta
         self.angles['H1,O,M'] = theta/2
         self.angles['H2,O,M'] = theta/2
-        self.lj_parameters['OO']['epsilon'] = epsilon
-        self.lj_parameters['OO']['sigma'] = sigma
+        self.lj_params['OO']['epsilon'] = epsilon
+        self.lj_params['OO']['sigma'] = sigma

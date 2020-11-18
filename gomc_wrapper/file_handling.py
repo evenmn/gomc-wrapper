@@ -459,7 +459,7 @@ def psfgen(coordinates="coord.pdb", topology="topology.inp", genfile=None):
     df['MOL_LABEL_TOPO'] = numatoms * [mollabel]
 
     # generate bond and angle lists
-    angles = [['H1', 'O', 'M'], ['H1', 'O', 'H2'], ['H2', 'O', 'M']]
+    angles = [['H1', 'O1', 'M1'], ['H1', 'O1', 'H2'], ['H2', 'O1', 'M1']]
     numbonds = nummols * len(bonds)
     numangles = nummols * len(angles)
     bond_list = []
