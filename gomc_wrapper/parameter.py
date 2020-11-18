@@ -21,8 +21,8 @@ class Parameter:
                 string += str(int(value)) + " \t"
                 # string += f"{value:>7d}"
             elif thistype == float:
-                string += str(float(value)) + " \t"
-                # string += f"{value:>7.3f}"
+                # string += str(float(value)) + " \t"
+                string += f"{value:<10.5f} \t"
             elif thistype == str:
                 string += str(value)
             elif thistype == bool:
