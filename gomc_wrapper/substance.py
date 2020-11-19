@@ -42,11 +42,11 @@ class TIP4P2005(Substance):
         """
         self.charges['H'] = Z_H
         self.charges['M'] = - 2 * Z_H
-        self.bonds['O,H1'] = r0
-        self.bonds['O,H2'] = r0
-        self.bonds['O,M'] = OM
-        self.angles['H1,O,H2'] = theta
-        self.angles['H1,O,M'] = theta/2
-        self.angles['H2,O,M'] = theta/2
+        self.bonds['O1,H1'] = r0
+        self.bonds['O1,H2'] = r0
+        self.bonds['O1,M1'] = OM
+        self.angles['H1,O1,H2'] = theta
+        self.angles['H1,O1,M1'] = theta/2
+        self.angles['H2,O1,M1'] = theta/2
         self.lj_params['OO']['epsilon'] = epsilon
         self.lj_params['OO']['sigma'] = sigma
