@@ -3,6 +3,22 @@ import pandas as pd
 from io import StringIO
 
 
+def average(arr, window):
+    """Average an array arr over a certain window size
+    """
+    if window == 1:
+        return arr
+    elif window > len(arr):
+        raise IndexError("Window is larger than array size")
+    else:
+        remainder = len(arr) % window
+        if remainder == 0:
+            avg = np.mean(arr.reshape(-1, window), axis=1)
+        else:
+            avg = np.mean(arr[:-remainder].reshape(-1, window), axis=1)
+    return avg
+
+
 class Analyze:
     """Class for handling GOMC dat-files.
     Parameters
@@ -32,22 +48,6 @@ class Analyze:
         """Return list of available data columns in the log file."""
         print(", ".join(self.keywords))
 
-    @staticmethod
-    def average(arr, window):
-        """Average an array arr over a certain window size
-        """
-        if window == 1:
-            return arr
-        elif window > len(arr):
-            raise IndexError("Window is larger than array size")
-        else:
-            remainder = len(arr) % window
-            if remainder == 0:
-                avg = np.mean(arr.reshape(-1, window), axis=1)
-            else:
-                avg = np.mean(arr[:-remainder].reshape(-1, window), axis=1)
-        return avg
-
 
 if __name__ == "__main__":
     window = 10
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     for filename in filenames:
         file = Analyze(filename)
         fileobjs.append(file)
-        dependents.append(file.average(file.find("STEPS")[50:], window))
+        dependents.append(average(file.find("STEPS")[50:], window))
 
     import matplotlib.pyplot as plt
     keywords = ["TOT_EN", "EN_INTER", "EN_TC", "EN_INTRA(B)", "EN_INTRA(NB)",
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     for keyword in keywords:
         for fileobj, dependent, phase in zip(fileobjs, dependents, phases):
             arr = fileobj.find(keyword)
-            arr_avg = fileobj.average(arr[50:], window)
+            arr_avg = average(arr[50:], window)
             plt.plot(dependent, arr_avg, label=phase)
         plt.xlabel("Steps")
         plt.ylabel(keyword)
