@@ -35,7 +35,7 @@ class GOMC:
             repeat = True
             while repeat:
                 try:
-                    os.makedirs(wd_prop)
+                    os.makedirs(self.wd)
                     repeat = False
                 except FileExistsError:
                     ext += 1
