@@ -24,6 +24,7 @@ class GOMC:
     def set_working_directory(self, wd, overwrite=False):
         """Define working directory
         """
+        self.wd = wd    # proposed working directory
         if overwrite:
             try:
                 os.makedirs(wd)
@@ -34,12 +35,12 @@ class GOMC:
             repeat = True
             while repeat:
                 try:
-                    os.makedirs(wd)
+                    os.makedirs(wd_prop)
                     repeat = False
                 except FileExistsError:
                     ext += 1
-                    wd += f"_{ext}"
-        os.chdir(wd)
+                    self.wd = wd + f"_{ext}"
+        os.chdir(self.wd)
 
     def copy_to_wd(self, *filename):
         """Copy one or several files to working directory.
