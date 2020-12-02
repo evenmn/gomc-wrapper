@@ -19,16 +19,32 @@ class TIP3P(Substance):
 
 class TIP4P2005(Substance):
     def __init__(self):
+        # define (arbitrary but unique) atom labels
         self.atom_labels = ['O1', 'H1', 'H2', 'M1']
+
+        # define atom elements, first character has to be uppercase
         self.atom_types = ['O', 'H', 'H', 'M']
+
+        # define bond types and bond lengths
         self.bond_types = ['OH', 'OM']
-        self.masses = {'O': 15.9994, 'H': 1.0079, 'M': 0.0}
-        self.charges = {'O': 0.0, 'H': 0.5564, 'M': -1.1128}
         self.bonds = {'O1,H1': 0.9572, 'O1,H2': 0.9572, 'O1,M1': 0.1546}
+
+        # define masses
+        self.masses = {'O': 15.9994, 'H': 1.0079, 'M': 0.0}
+        self.mass = sum(self.masses.values())
+
+        # define charges
+        self.charges = {'O': 0.0, 'H': 0.5564, 'M': -1.1128}
+
+        # define angles
         self.angles = {'H1,O1,H2': 104.52, 'H1,O1,M1': 52.26, 'H2,O1,M1': 52.26}
+
+        # define intra-molecular interactions (Lennard-Jones)
         self.lj_params = {'OO': {'epsilon': 0.1852, 'sigma': 3.1589},
                           'OH': {'epsilon': 0.0000, 'sigma': 0.0000},
                           'HH': {'epsilon': 0.0000, 'sigma': 0.0000}}
+
+        # define force field in GOMC
         self.gomc_params = {'Rcut': 8.5, 'LRC': True, 'Exclude': '1-4',
                             'Potential': 'VDW', 'ElectroStatic': True,
                             'Ewald': True, 'CachedFourier': True,
