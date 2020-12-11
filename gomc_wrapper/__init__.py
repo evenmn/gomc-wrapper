@@ -1,4 +1,5 @@
 import os
+import time
 import shutil
 import subprocess
 from .parameter import parameters
@@ -55,7 +56,7 @@ class GOMC:
             shutil.copyfile(path, tail)
 
     def run(self, gomc_exec='GOMC_CPU_NVT', num_procs=1, gomc_input='in.conf',
-            slurm=False, slurm_args={}, jobscript='job.sh'):
+            slurm=False, slurm_args={}, jobscript='job.sh', wait=True):
         """Run
         """
         self.write(gomc_input)
@@ -66,3 +67,17 @@ class GOMC:
         else:
             # os.system(executable)
             subprocess.Popen(executable.split())
+            time.sleep(1)
+            pid = int(subprocess.check_output(['pidof', gomc_exec]))
+
+            if wait:
+                done = False
+                while not done:
+                    try:
+                        subprocess.check_output(['pidof', gomc_exec])
+                        # subprocess.check_output(['ps', '-p', str(pid), '|', 'grep', str(pid)])
+                        time.sleep(3)
+                    except subprocess.CalledProcessError:
+                        done = True
+                    except:
+                        subprocess.Popen(['kill', str(pid)])
