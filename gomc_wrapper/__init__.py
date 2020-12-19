@@ -2,14 +2,14 @@ import os
 import time
 import shutil
 import subprocess
-from .parameter import parameters
+from .parameter import _initialize_parameters
 from .file_handling import read, write_topology, write_parameter, write_molecule, write_pdb, write_jobscript, psfgen
 
 
 class GOMC:
     def __init__(self):
 
-        self.parameters = parameters
+        self.parameters = _initialize_parameters()
 
         self.numboxes = 0
         self.boxes = []
