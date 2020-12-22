@@ -64,14 +64,14 @@ class GOMC:
         executable = f"{gomc_exec} +p{num_procs} {gomc_input}"
         if slurm:
             write_jobscript(jobscript, executable, slurm_args)
-            output = subprocess.check_output(['sbatch', jobscript])
-            pid = int(re.findall("([0-9]+)", output).groups()[0])
-            print("Pid found to be: ", pid)
+            output = str(subprocess.check_output(['sbatch', jobscript]))
+            job_id = int(re.findall("([0-9]+)", output)[0])
+            print("Job_ID found to be: ", job_id)
         else:
             # os.system(executable)
             subprocess.Popen(executable.split())
             time.sleep(1)
-            pid = int(subprocess.check_output(['pidof', gomc_exec]))
+            job_id = int(subprocess.check_output(['pidof', gomc_exec]))
 
             if wait:
                 done = False
@@ -83,5 +83,5 @@ class GOMC:
                     except subprocess.CalledProcessError:
                         done = True
                     except:
-                        subprocess.Popen(['kill', str(pid)])
-        return pid
+                        subprocess.Popen(['kill', str(job_id)])
+        return job_id
