@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import shutil
 import subprocess
@@ -63,7 +64,9 @@ class GOMC:
         executable = f"{gomc_exec} +p{num_procs} {gomc_input}"
         if slurm:
             write_jobscript(jobscript, executable, slurm_args)
-            subprocess.Popen(['sbatch', jobscript])
+            output = subprocess.check_output(['sbatch', jobscript])
+            pid = int(re.findall("([0-9]+)", output).groups()[0])
+            print("Pid found to be: ", pid)
         else:
             # os.system(executable)
             subprocess.Popen(executable.split())
@@ -81,3 +84,4 @@ class GOMC:
                         done = True
                     except:
                         subprocess.Popen(['kill', str(pid)])
+        return pid
