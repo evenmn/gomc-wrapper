@@ -2,6 +2,7 @@ import os
 import re
 import time
 import shutil
+import psutil
 import subprocess
 from .parameter import _initialize_parameters
 from .file_handling import read, write_topology, write_parameter, write_molecule, write_pdb, write_jobscript, psfgen
@@ -65,23 +66,12 @@ class GOMC:
         if slurm:
             write_jobscript(jobscript, executable, slurm_args)
             output = subprocess.check_output(['sbatch', jobscript])
-            pid = int(re.findall("([0-9]+)", output).groups()[0])
-            print("Pid found to be: ", pid)
+            job_id = int(re.findall("([0-9]+)", output).groups()[0])
         else:
-            # os.system(executable)
-            subprocess.Popen(executable.split())
-            time.sleep(1)
-            pid = int(subprocess.check_output(['pidof', gomc_exec]))
+            popen = subprocess.Popen(executable.split())
+            job_id = popen.pid
+            while psutil.pid_exists(job_id) and wait:
+                time.sleep(3)
 
-            if wait:
-                done = False
-                while not done:
-                    try:
-                        subprocess.check_output(['pidof', gomc_exec])
-                        # subprocess.check_output(['ps', '-p', str(pid), '|', 'grep', str(pid)])
-                        time.sleep(3)
-                    except subprocess.CalledProcessError:
-                        done = True
-                    except:
-                        subprocess.Popen(['kill', str(pid)])
-        return pid
+        print("Job ID found to be: ", job_id)
+        return job_id
