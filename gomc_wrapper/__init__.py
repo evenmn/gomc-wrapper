@@ -66,7 +66,7 @@ class GOMC:
         if slurm:
             write_jobscript(jobscript, executable, slurm_args)
             output = subprocess.check_output(['sbatch', jobscript])
-            job_id = int(re.findall("([0-9]+)", output).groups()[0])
+            job_id = int(re.findall("([0-9]+)", str(output))[0])
         else:
             popen = subprocess.Popen(executable.split())
             job_id = popen.pid
