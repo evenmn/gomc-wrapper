@@ -164,5 +164,6 @@ def _initialize_parameters():
     parameters["OutDensity"] = Parameter(bool, bool)
     parameters["OutVolume"] = Parameter(bool, bool)
     parameters["OutSurfaceTension"] = Parameter(bool, bool)
+    parameters["OutHeat"] = Parameter(bool, bool)
 
     return parameters

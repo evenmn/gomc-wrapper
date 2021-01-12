@@ -123,12 +123,12 @@ def set_freq(self, coord=None, restart=None, console=None, block=None,
 
 
 def set_out(self, energy=False, pressure=False, molnum=False, density=False,
-            volume=False, surfacetension=False):
+            volume=False, surfacetension=False, heat=False):
     """Set block averaged outputs
     """
     dct = {"OutEnergy": energy, "OutPressure": pressure, "OutMolNum": molnum,
            "OutDensity": density, "OutVolume": volume,
-           "OutSurfaceTension": surfacetension}
+           "OutSurfaceTension": surfacetension, "OutHeat": heat}
 
     for key, value in dct.items():
         if value:
