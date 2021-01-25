@@ -1,7 +1,8 @@
 class Parameter:
-    def __init__(self, *types, multiline=False):
+    def __init__(self, *types, multiline=False, repeat_last=False):
         self.types = types
         self.multiline = multiline
+        self.repeat_last = repeat_last
         if multiline:
             self.values = {}
         else:
@@ -46,6 +47,12 @@ class Parameter:
         return string
 
     def set(self, *values):
+        if self.repeat_last:
+            # give types dynamic length
+            types = tuple([self.types[-1] for _ in range(len(values))])
+            for i, type in enumerate(self.types):
+                types[i] = type
+            self.types = types
         if self.multiline:
             # save all inputs if multiple lines is allowed
             box_id = int(values[0])
@@ -137,11 +144,11 @@ def _initialize_parameters():
     parameters["CBMC_Nth"] = Parameter(int)
     parameters["CBMC_Ang"] = Parameter(int)
     parameters["CBMC_Dih"] = Parameter(int)
-    parameters["FreeEnergyCalc"] = Parameter(bool, int)
+    parameters["FreeEnergyCalc"] = Parameter(bool, int, repeat_last=True)
     parameters["MoleculeType"] = Parameter(str, int)
     parameters["InitialState"] = Parameter(int)
-    parameters["LambdaVDW"] = Parameter(float)
-    parameters["LambdaCoulomb"] = Parameter(float)
+    parameters["LambdaVDW"] = Parameter(float, repeat_last=True)
+    parameters["LambdaCoulomb"] = Parameter(float, repeat_last=True)
     parameters["ScaleCoulomb"] = Parameter(bool)
     parameters["ScalePower"] = Parameter(int)
     parameters["ScaleAlpha"] = Parameter(float)
