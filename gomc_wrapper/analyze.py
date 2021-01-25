@@ -19,8 +19,8 @@ def average(arr, window):
     return avg
 
 
-class Analyze:
-    """Class for handling GOMC dat-files.
+class Blk:
+    """Class for analyzing bulk (Blk) files.
     Parameters
     ----------------------
     :param filename: path to lammps log file
@@ -49,6 +49,37 @@ class Analyze:
         print(", ".join(self.keywords))
 
 
+class FreeEnergy:
+    """Class for analyzing free energy files.
+    Parameters
+    ----------------------
+    :param filename: path to lammps log file
+    :type filename: string or file
+    """
+    def __init__(self, filename):
+        # Identifiers for places in the log file
+        if hasattr(filename, "read"):
+            logfile = filename
+        else:
+            logfile = open(filename, 'r')
+        self.read_file_to_dataframe(logfile)
+
+    def read_file_to_dataframe(self, logfile):
+        # read three first lines, which should be information lines
+        info = logfile.readline()
+        string = logfile.readline()[1:]  # string should start with the kws
+        self.keywords = string.split()
+        contents = logfile.read()
+        self.contents = pd.read_table(StringIO(string + contents), sep=r'\s+')
+
+    def find(self, entry_name):
+        return np.asarray(self.contents[entry_name])
+
+    def get_keywords(self):
+        """Return list of available data columns in the log file."""
+        print(", ".join(self.keywords))
+
+
 if __name__ == "__main__":
     window = 10
     filenames = ["Blk_TIP4P_370_00_K_RESTART5_BOX_0.dat",
@@ -59,7 +90,7 @@ if __name__ == "__main__":
     fileobjs = []
     dependents = []
     for filename in filenames:
-        file = Analyze(filename)
+        file = Blk(filename)
         fileobjs.append(file)
         dependents.append(average(file.find("STEPS")[50:], window))
 
