@@ -93,7 +93,8 @@ def set_prob(self, dis=0.0, rot=0.0, intraswap=0.0, regrowth=0.0,
            "IntraMEMC-2Freq": intramemc2, "IntraMEMC-3Freq": intramemc3,
            "MEMC-1Freq": memc1, "MEMC-2Freq": memc2, "MEMC-3Freq": memc3,
            "SwapFreq": swap, "VolFreq": vol}
-    assert sum(dct.values()) == 1.0, "Sum of probabilities has to be equal to 1!"
+    assert abs(sum(dct.values()) - 1.0) < 1e-4, \
+           "Sum of probabilities has to be equal to 1!"
 
     for key, value in dct.items():
         if value > 0:
