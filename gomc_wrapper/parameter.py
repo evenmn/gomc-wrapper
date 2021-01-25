@@ -25,7 +25,7 @@ class Parameter:
                 # string += str(float(value)) + " \t"
                 string += f"{value:<10.5f} \t"
             elif thistype == str:
-                string += str(value)
+                string += str(value) + " \t"
             elif thistype == bool:
                 if value is True:
                     string += "true \t"
@@ -49,10 +49,10 @@ class Parameter:
     def set(self, *values):
         if self.repeat_last:
             # give types dynamic length
-            types = tuple([self.types[-1] for _ in range(len(values))])
+            types = [self.types[-1] for _ in range(len(values))]
             for i, type in enumerate(self.types):
                 types[i] = type
-            self.types = types
+            self.types = tuple(types)
         if self.multiline:
             # save all inputs if multiple lines is allowed
             box_id = int(values[0])
