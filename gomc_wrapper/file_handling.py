@@ -90,6 +90,11 @@ def write(self, filename='in.conf', verbose=True):
                 f.write("# CBMC TRIALS")
                 f.write("\n" + "#" * 36 + "\n")
 
+            elif key == "FreeEnergyCalc" and verbose:
+                f.write("\n" + "#" * 36 + "\n")
+                f.write("# FREE ENERGY COMPUTATIONS")
+                f.write("\n" + "#" * 36 + "\n")
+
             elif key == "OutputName":
                 f.write("\n" + "#" * 76 + "\n")
                 f.write("# " + "=" * 8 + "-" * 25 + " OUTPUT " + "-" * 25 + "=" * 8)
